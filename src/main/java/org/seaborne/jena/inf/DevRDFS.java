@@ -21,8 +21,6 @@ import java.io.IOException ;
 import java.util.List ;
 
 import org.apache.jena.atlas.logging.LogCtl ;
-import org.apache.jena.riot.RDFDataMgr ;
-
 import org.apache.jena.graph.Graph ;
 import org.apache.jena.graph.Node ;
 import org.apache.jena.graph.NodeFactory ;
@@ -33,6 +31,10 @@ import org.apache.jena.rdf.model.ModelFactory ;
 import org.apache.jena.reasoner.Reasoner ;
 import org.apache.jena.reasoner.rulesys.GenericRuleReasoner ;
 import org.apache.jena.reasoner.rulesys.Rule ;
+import org.apache.jena.riot.RDFDataMgr ;
+import org.apache.jena.tdb.TDBFactory ;
+import org.apache.jena.tdb.store.DatasetGraphTDB ;
+import org.apache.jena.tdb.transaction.DatasetGraphTransaction ;
 import org.apache.jena.util.FileUtils ;
 import org.apache.jena.util.iterator.ExtendedIterator ;
 public class DevRDFS {
@@ -77,7 +79,26 @@ public class DevRDFS {
     static Graph g_rdfs3 ;
     
     public static void main(String...argv) throws IOException {
+        DatasetGraphTDB dsg = ((DatasetGraphTransaction)TDBFactory.createDatasetGraph()).get() ;
+        String DIR = "testing/Inf" ;
+        String DATA_FILE = DIR+"/rdfs-data.ttl" ;
+        String VOCAB_FILE = DIR+"/rdfs-vocab.ttl" ;
+        String RULES_FILE = DIR+"/rdfs-min.rules" ;
+
+        Model vocab = RDFDataMgr.loadModel(VOCAB_FILE) ;
+        Model data = RDFDataMgr.loadModel(DATA_FILE) ;
+        String rules = FileUtils.readWholeFileAsUTF8(RULES_FILE) ;
+        rules = rules.replaceAll("#[^\\n]*", "") ;
+
+        // TDB
         
+        InferenceSetupRDFS_TDB setup = new InferenceSetupRDFS_TDB(vocab, dsg, false) ;
+        //Graph graph = new GraphRDFS(setup, data.getGraph()) ;
+        
+        
+    }
+    
+    public static void main1(String...argv) throws IOException {
         String DIR = "testing/Inf" ;
         String DATA_FILE = DIR+"/rdfs-data.ttl" ;
         String VOCAB_FILE = DIR+"/rdfs-vocab.ttl" ;
